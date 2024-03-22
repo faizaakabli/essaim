@@ -1,64 +1,70 @@
-extern crate noise;
-extern crate rand; // Importation de la bibliothèque rand
+use bevy::prelude::*;
+use bevy::window::PrimaryWindow;
+use rand::prelude::*;
 
-use noise::{Perlin, NoiseFn};
-use rand::{SeedableRng, RngCore}; // Importation de SeedableRng et RngCore
+
+
+pub const NUMBER_OF_ENEMIES: usize = 6;
 
 fn main() {
-    let width = 10;
-    let height = 10;
-    let seed = 42;
-    let map = generate_obstacles(width, height, seed);
-    display_map(&map);
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .add_startup_system(spawn_camera)
+        .add_startup_system(spawn_player)
+        .add_startup_system(spawn_enemies)
+        .run();
 }
 
+#[derive(Component)]
+pub struct Player {}
 
-struct Cell {
-    obstacle: bool,
-    energy: u32,
-    minerals: u32,
-    scientific_interest: bool,
+#[derive(Component)]
+pub struct Enemy {}
+
+pub fn spawn_player(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    let window = window_query.get_single().unwrap();
+
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0).with_scale(Vec3::splat(0.5)),
+            texture: asset_server.load("sprites/robot.png"),
+            ..default()
+        },
+        Player {},
+    ));
 }
 
-struct Map {
-    cells: Vec<Vec<Cell>>,
+pub fn spawn_camera(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>) {
+    let window = window_query.get_single().unwrap();
+
+    commands.spawn(Camera2dBundle {
+        transform: Transform::from_xyz(window.width() / 2.0, window.height() / 2.0, 0.0),
+        ..default()
+    });
 }
 
-fn generate_obstacles(width: usize, height: usize, seed: u32) -> Vec<Vec<bool>> {
-    let perlin = Perlin::new();
-    let seed_bytes = seed.to_be_bytes();
-    let mut seed_array = [0; 32]; // Initialisation d'un tableau de 32 éléments avec des zéros
+pub fn spawn_enemies(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    asset_server: Res<AssetServer>,
+) {
+    let window = window_query.get_single().unwrap();
 
-    // Copie des 4 premiers bytes de seed_bytes dans seed_array
-    seed_array[..4].copy_from_slice(&seed_bytes);
+    for _ in 0..NUMBER_OF_ENEMIES {
+        let random_x = random::<f32>() * window.width();
+        let random_y = random::<f32>() * window.height();
 
-    let mut rng = rand::rngs::StdRng::from_seed(seed_array);
-
-    let mut obstacles = Vec::with_capacity(height);
-    for y in 0..height {
-        let mut row = Vec::with_capacity(width);
-        for x in 0..width {
-            let noise_value = perlin.get([x as f64 / 10.0, y as f64 / 10.0, 0.0]);
-            let obstacle_probability = (noise_value + 1.0) / 2.0; // Valeur entre 0 et 1
-            let obstacle = (rng.next_u64() as f64 / std::u64::MAX as f64) > obstacle_probability;
-            row.push(obstacle);
-        }
-        obstacles.push(row);
+        commands.spawn((
+            SpriteBundle {
+                transform: Transform::from_xyz(random_x, random_y, 0.0).with_scale(Vec3::splat(0.05)),
+                texture: asset_server.load("sprites/enemies.png"),
+                ..default()
+            },
+            Enemy {},
+        ));
     }
-    obstacles
 }
-
-fn display_map(map: &Vec<Vec<bool>>) {
-    for row in map {
-        for &cell in row {
-            if cell {
-                print!("#"); // Caractère représentant un obstacle
-            } else {
-                print!("."); // Caractère représentant une zone libre
-            }
-        }
-        println!(); // Aller à la ligne après chaque ligne de la carte
-    }
-}
-
-
