@@ -7,5 +7,8 @@ edition = "2021"
 
 [dependencies]
 noise = "=0.7.0"
+bevy = "0.10.0"
 rand = "0.8.5"
+
+
 
