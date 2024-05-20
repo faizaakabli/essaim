@@ -37,6 +37,9 @@ fn main() {
         .run();
 }
 
+#[cfg(tests)]
+mod tests;
+
 
 // déclarations de composants et ressources
 #[derive(Component)]
