@@ -156,6 +156,17 @@ pub fn spawn_robot(
 pub fn spawn_trees(mut commands: Commands, window_query: Query<&Window, With<PrimaryWindow>>, asset_server: Res<AssetServer>,) {
     let window = window_query.get_single().unwrap();
 
+
+    // affiche maison
+    commands.spawn((
+        SpriteBundle {
+            transform: Transform::from_xyz(window.width() - 750.0, window.height() - 250.0, 0.0).with_scale(Vec3::splat(0.5)),
+            texture: asset_server.load("sprites/house.png"),
+            ..default()
+        },
+        Tree {},
+    ));
+
     commands.spawn((
         SpriteBundle {
             transform: Transform::from_xyz(window.width() - 100.0, window.height() - 300.0, 0.0).with_scale(Vec3::splat(0.5)),
