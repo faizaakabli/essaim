@@ -2,8 +2,7 @@
 
 Ce projet est un jeu simple développé en Rust en utilisant la bibliothèque Bevy. Le but du jeu est d'avoir un robot qui se déplace à l'écran, collecte des étoiles et des minerais, et interagit avec des arbres (obstacles)
 
-!(photoGame.png)
-
+<img width="1273" alt="rustme" src="https://github.com/faizaakabli/essaim/assets/64701810/20bd5859-ae8f-49f4-b03f-22de731effb5">
 
 
 
